@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Dashboard - TurfArena</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --primary: #006FCD;
+      --primary-dark: #005A9E;
+      --bg: #0b1220;
+      --card-bg: #111827;
+      --accent: #0080FF;
+      --danger: #ef4444;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --success: #10b981;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #1f2933 0, #020617 55%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 5vw;
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 18px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn {
+      border: none;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #fff;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: var(--text);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, var(--danger), #dc2626);
+      color: #fff;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .main-container {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      min-height: calc(100vh - 70px);
+    }
+
+    .sidebar {
+      background: var(--card-bg);
+      border-right: 1px solid rgba(148, 163, 184, 0.2);
+      padding: 24px 0;
+      overflow-y: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 24px;
+      color: var(--muted);
+      text-decoration: none;
+      transition: all 0.2s ease;
+      font-size: 14px;
+    }
+
+    .nav-item.active,
+    .nav-item:hover {
+      background: rgba(96, 165, 250, 0.1);
+      color: var(--accent);
+      border-right: 3px solid var(--accent);
+    }
+
+    .content {
+      padding: 24px 5vw;
+      overflow-y: auto;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .page-header h1 {
+      font-size: 24px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 14px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    input,
+    select,
+    textarea,
+    input[type="file"] {
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.8);
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus,
+    input[type="file"]:focus {
+      border-color: var(--accent);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .image-preview {
+      margin-top: 8px;
+      max-width: 200px;
+      max-height: 150px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    .turf-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    .turf-item {
+      padding: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .turf-info h4 {
+      margin-bottom: 4px;
+    }
+
+    .turf-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .slot-management {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      gap: 4px;
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      border-radius: 8px;
+      padding: 8px;
+    }
+
+    .slot-btn {
+      padding: 6px;
+      border-radius: 6px;
+      font-size: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.8);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .slot-btn.blocked {
+      background: var(--danger);
+      color: #fff;
+      border-color: var(--danger);
+    }
+
+    .slot-btn:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      text-align: center;
+      padding: 20px;
+      background: linear-gradient(135deg, rgba(96, 165, 250, 0.3));
+    }
+
+    .stat-number {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 840px) {
+      .main-container {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <span style="font-size:18px;">Admin</span>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-outline" onclick="logout()">Logout</button>
+    </div>
+  </header>
+
+  <div class="main-container">
+    <nav class="sidebar">
+      <a href="#" class="nav-item active" onclick="showSection('dashboard')">Dashboard</a>
+      <a href="#" class="nav-item" onclick="showSection('manage-turfs')">Manage Turfs</a>
+      <a href="#" class="nav-item" onclick="showSection('manage-slots')">Manage Slots</a>
+    </nav>
+
+    <main class="content">
+      <!-- Dashboard Section -->
+      <section id="dashboard" class="section active">
+        <div class="page-header">
+          <h1>Dashboard</h1>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number" id="totalTurfs">3</div>
+            <div class="stat-label">Total Turfs</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="totalBookings">15</div>
+            <div class="stat-label">Bookings Today</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="revenue">₹25,000</div>
+            <div class="stat-label">Estimated Revenue</div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Recent Bookings</h2>
+          <ul id="recentBookings" style="list-style:none;padding:0;">
+            <!-- Dynamically populated -->
+          </ul>
+        </div>
+      </section>
+
+      <!-- Manage Slots Section -->
+      <section id="manage-slots" class="section" style="display:none;">
+        <div class="page-header">
+          <h1>Manage Slots</h1>
+          <select id="slotTurfSelect" onchange="loadSlotsForTurf()" style="padding:8px; border-radius:8px; background:rgba(15,23,42,0.8); color:var(--text); border:1px solid rgba(148,163,184,0.6);">
+            <!-- Dynamically populated -->
+          </select>
+        </div>
+        <div class="card">
+          <h2>Block Slots (Admin Control)</h2>
+          <p style="color:var(--muted); margin-bottom:16px;">Toggle to block/unblock time slots for the selected turf.</p>
+          <div class="slot-management" id="slotManagement">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Manage Turfs Section -->
+      <section id="manage-turfs" class="section" style="display:none;">
+        <div class="page-header">
+          <h1>Manage Turfs</h1>
+          <button class="btn btn-primary" onclick="openAddTurfForm()">Add New Turf</button>
+        </div>
+        <div class="card">
+          <div class="turf-list" id="turfList">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Add/Edit Turf Form Modal -->
+        <div id="turfFormModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:50; align-items:center; justify-content:center;">
+          <div class="card" style="width:90%; max-width:600px; padding:24px;">
+            <h2 id="formTitle">Add Turf</h2>
+            <form id="turfForm">
+              <div class="form-grid">
+                <div class="input-group">
+                  <label for="turfName">Name</label>
+                  <input type="text" id="turfName" required />
+                </div>
+                <div class="input-group">
+                  <label for="turfLocation">Location</label>
+                  <input type="text" id="turfLocation" required />
+                </div>
+                <div class="input-group">
+                  <label for="turfMeta">Meta (Sports)</label>
+                  <input type="text" id="turfMeta" placeholder="e.g., Football, Cricket" required />
+                </div>
+                <div class="input-group">
+                  <label for="turfPrice">Base Price (₹/hr)</label>
+                  <input type="number" id="turfPrice" required />
+                </div>
+                <div class="input-group">
+                  <label for="turfImage">Turf Image (Optional, <2MB)</label>
+                  <input type="file" id="turfImage" accept="image/*" />
+                  <img id="imagePreview" class="image-preview" style="display:none;" alt="Preview" />
+                </div>
+                <div class="input-group">
+                  <label for="turfPanorama">360° Panorama Image (Optional, <10MB)</label>
+                  <input type="file" id="turfPanorama" accept="image/*" />
+                  <img id="panoramaPreview" class="image-preview" style="display:none;" alt="Preview" />
+                  <small style="color: var(--muted);">Equirectangular 360° image recommended</small>
+                </div>
+              </div>
+              <div id="uploadStatus" style="color: var(--danger); font-size: 12px; margin-top: 8px;"></div>
+              <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:20px;">
+                <button type="button" class="btn btn-outline" onclick="closeTurfForm()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Check if admin is logged in
+    if (!localStorage.getItem('adminLoggedIn')) {
+      window.location.href = 'admin-login.html';
+    }
+
+    // Load data from localStorage (shared with index.html)
+    let turfData = JSON.parse(localStorage.getItem('turfData')) || {};
+    let bookings = JSON.parse(localStorage.getItem('bookings')) || {};
+    let blocked = JSON.parse(localStorage.getItem('blocked')) || {};
+
+    // Save to localStorage on changes
+    function saveData() {
+      try {
+        localStorage.setItem('turfData', JSON.stringify(turfData));
+        localStorage.setItem('bookings', JSON.stringify(bookings));
+        localStorage.setItem('blocked', JSON.stringify(blocked));
+        console.log("Data saved successfully");
+      } catch (e) {
+        console.error("Save failed:", e);
+        alert("Save error: Storage full? Clear cache and try smaller images.");
+      }
+    }
+
+    function showSection(sectionId) {
+      document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+      document.getElementById(sectionId).style.display = 'block';
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+      event.target.classList.add('active');
+      if (sectionId === 'dashboard') loadDashboard();
+      if (sectionId === 'manage-turfs') loadTurfs();
+      if (sectionId === 'manage-slots') loadSlotManagement();
+    }
+
+    function loadDashboard() {
+      document.getElementById('totalTurfs').textContent = Object.keys(turfData).length;
+      document.getElementById('totalBookings').textContent = Object.values(bookings).reduce((a, b) => a + (b || []).length, 0);
+      const revenue = Object.entries(bookings).reduce((a, [id, slots]) => a + ((slots || []).length * (turfData[id]?.basePrice || 1000)), 0);
+      document.getElementById('revenue').textContent = `₹${revenue}`;
+      const recentList = document.getElementById('recentBookings');
+      recentList.innerHTML = `
+        <li style="padding:8px; border-bottom:1px solid rgba(148,163,184,0.2); display:flex; justify-content:space-between;">
+          <span>GreenLine - 6-7 PM</span><span>₹1200</span>
+        </li>
+        <li style="padding:8px; border-bottom:1px solid rgba(148,163,184,0.2); display:flex; justify-content:space-between;">
+          <span>Boundary - 7-8 PM</span><span>₹800</span>
+        </li>
+      `;
+    }
+
+    function loadSlotManagement() {
+      const select = document.getElementById('slotTurfSelect');
+      select.innerHTML = '<option value="">Select Turf</option>';
+      Object.entries(turfData).forEach(([id, turf]) => {
+        const option = document.createElement('option');
+        option.value = id;
+        option.textContent = turf.name;
+        select.appendChild(option);
+      });
+    }
+
+    function loadSlotsForTurf() {
+      const turfId = document.getElementById('slotTurfSelect').value;
+      if (!turfId) return;
+      const management = document.getElementById('slotManagement');
+      management.innerHTML = '';
+      const hours = Array.from({ length: 24 }, (_, i) => i);
+      const blockedSlots = blocked[turfId] || [];
+      hours.forEach(h => {
+        const btn = document.createElement('button');
+        btn.className = 'slot-btn';
+        btn.textContent = h.toString().padStart(2, '0') + ':00';
+        const isBlocked = blockedSlots.includes(h);
+        if (isBlocked) btn.classList.add('blocked');
+        btn.onclick = () => toggleBlock(turfId, h, btn);
+        management.appendChild(btn);
+      });
+    }
+
+    function toggleBlock(turfId, hour, btn) {
+      if (!blocked[turfId]) blocked[turfId] = [];
+      const index = blocked[turfId].indexOf(hour);
+      if (index > -1) {
+        blocked[turfId].splice(index, 1);
+        btn.classList.remove('blocked');
+      } else {
+        blocked[turfId].push(hour);
+        btn.classList.add('blocked');
+      }
+      saveData();
+    }
+
+    function logout() {
+      localStorage.removeItem('adminLoggedIn');
+      window.location.href = 'index.html';
+    }
+
+    // Manage Turfs
+    function loadTurfs() {
+      const list = document.getElementById('turfList');
+      list.innerHTML = '';
+      Object.entries(turfData).forEach(([id, turf]) => {
+        const item = document.createElement('div');
+        item.className = 'turf-item';
+        item.innerHTML = `
+          <div class="turf-info">
+            <h4>${turf.name}</h4>
+            <p style="color:var(--muted); font-size:12px;">${turf.meta} | ₹${turf.basePrice}/hr</p>
+            ${turf.image ? '<p style="color:#60A5FA; font-size:10px;">Image uploaded</p>' : ''}
+            ${turf.panoramaUrl ? '<p style="color:#3B82F6; font-size:10px;">360° Panorama uploaded</p>' : ''}
+          </div>
+          <div class="turf-actions">
+            <button class="btn btn-primary" onclick="editTurf(${id})" style="padding:6px 12px; font-size:12px;">Edit</button>
+            <button class="btn btn-danger" onclick="deleteTurf(${id})" style="padding:6px 12px; font-size:12px;">Delete</button>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    let editingTurfId = null;
+    function openAddTurfForm() {
+      editingTurfId = null;
+      document.getElementById('formTitle').textContent = 'Add Turf';
+      document.getElementById('turfForm').reset();
+      document.getElementById('imagePreview').style.display = 'none';
+      document.getElementById('panoramaPreview').style.display = 'none';
+      document.getElementById('uploadStatus').textContent = '';
+      document.getElementById('turfFormModal').style.display = 'flex';
+    }
+
+    function editTurf(id) {
+      editingTurfId = id;
+      const turf = turfData[id];
+      document.getElementById('formTitle').textContent = 'Edit Turf';
+      document.getElementById('turfName').value = turf.name;
+      document.getElementById('turfLocation').value = turf.meta.split(' • ')[0] || '';
+      document.getElementById('turfMeta').value = turf.meta.split(' • ')[1] || '';
+      document.getElementById('turfPrice').value = turf.basePrice;
+      if (turf.image) {
+        document.getElementById('imagePreview').src = turf.image;
+        document.getElementById('imagePreview').style.display = 'block';
+      } else {
+        document.getElementById('imagePreview').style.display = 'none';
+      }
+      if (turf.panoramaUrl) {
+        document.getElementById('panoramaPreview').src = turf.panoramaUrl;
+        document.getElementById('panoramaPreview').style.display = 'block';
+      } else {
+        document.getElementById('panoramaPreview').style.display = 'none';
+      }
+      document.getElementById('uploadStatus').textContent = '';
+      document.getElementById('turfFormModal').style.display = 'flex';
+    }
+
+    function closeTurfForm() {
+      document.getElementById('turfFormModal').style.display = 'none';
+    }
+
+    // Helper: Convert and compress image to base64
+    function fileToBase64(file, maxSizeMB = 2, compress = false) {
+      return new Promise((resolve, reject) => {
+        if (!file) {
+          reject(new Error('No file provided'));
+          return;
+        }
+        if (file.size > maxSizeMB * 1024 * 1024) {
+          reject(new Error(`File too large (>${maxSizeMB}MB). File size: ${(file.size / 1024 / 1024).toFixed(2)}MB`));
+          return;
+        }
+
+        if (!compress) {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = () => reject(new Error('Failed to read file'));
+          reader.readAsDataURL(file);
+          return;
+        }
+
+        // Compress image
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+
+            // Resize if too large (max 2048px for panoramas)
+            const maxDim = 2048;
+            if (width > maxDim || height > maxDim) {
+              if (width > height) {
+                height = (height / width) * maxDim;
+                width = maxDim;
+              } else {
+                width = (width / height) * maxDim;
+                height = maxDim;
+              }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            // Convert to base64 with compression (0.8 quality)
+            const compressed = canvas.toDataURL('image/jpeg', 0.8);
+            resolve(compressed);
+          };
+          img.onerror = () => reject(new Error('Failed to load image'));
+          img.src = e.target.result;
+        };
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Image preview on file select for turfImage
+    document.getElementById('turfImage').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      const preview = document.getElementById('imagePreview');
+      if (file) {
+        fileToBase64(file, 2, true).then((data) => {
+          preview.src = data;
+          preview.style.display = 'block';
+        }).catch((err) => {
+          console.error('Image preview error:', err);
+          preview.style.display = 'none';
+          alert(err.message || 'Image too large. Use <2MB files.');
+        });
+      } else {
+        preview.style.display = 'none';
+      }
+    });
+
+    // Image preview on file select for turfPanorama with 10MB limit and compression
+    document.getElementById('turfPanorama').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      const preview = document.getElementById('panoramaPreview');
+      if (file) {
+        fileToBase64(file, 10, true).then((data) => {
+          preview.src = data;
+          preview.style.display = 'block';
+        }).catch((err) => {
+          console.error('Panorama preview error:', err);
+          preview.style.display = 'none';
+          alert(err.message || 'Panorama too large. Use <10MB files.');
+        });
+      } else {
+        preview.style.display = 'none';
+      }
+    });
+
+    document.getElementById('turfForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const statusEl = document.getElementById('uploadStatus');
+      statusEl.textContent = 'Saving...';
+      statusEl.style.color = 'var(--accent)';
+
+      const name = document.getElementById('turfName').value.trim();
+      const location = document.getElementById('turfLocation').value.trim();
+      const meta = document.getElementById('turfMeta').value.trim();
+      const price = parseInt(document.getElementById('turfPrice').value);
+      if (!name || !location || !meta || !price) {
+        statusEl.textContent = 'Missing fields.';
+        statusEl.style.color = 'var(--danger)';
+        return;
+      }
+
+      const turfMeta = `${location} • ${meta}`;
+      const imageInput = document.getElementById('turfImage');
+      const panoramaInput = document.getElementById('turfPanorama');
+      let imageData = null;
+      let panoramaData = null;
+
+      try {
+        // Handle regular turf image (2MB limit) with compression
+        if (imageInput.files[0]) {
+          imageData = await fileToBase64(imageInput.files[0], 2, true);
+          console.log('Image converted and compressed to base64');
+        }
+
+        // Handle panorama image (10MB limit) with compression
+        if (panoramaInput.files[0]) {
+          panoramaData = await fileToBase64(panoramaInput.files[0], 10, true);
+          console.log('Panorama converted and compressed to base64');
+        }
+
+        // Save
+        if (editingTurfId) {
+          turfData[editingTurfId] = { 
+            name, 
+            meta: turfMeta, 
+            basePrice: price, 
+            image: imageData || turfData[editingTurfId].image, 
+            panoramaUrl: panoramaData || turfData[editingTurfId].panoramaUrl 
+          };
+        } else {
+          const newId = (Math.max(...Object.keys(turfData).map(Number), 0) + 1).toString();
+          turfData[newId] = { 
+            name, 
+            meta: turfMeta, 
+            basePrice: price, 
+            image: imageData, 
+            panoramaUrl: panoramaData 
+          };
+          bookings[newId] = [];
+          blocked[newId] = [];
+        }
+        saveData();
+        console.log('Turf saved with images:', { imageData: !!imageData, panoramaData: !!panoramaData });
+        loadTurfs();
+        closeTurfForm();
+        statusEl.textContent = 'Saved successfully!';
+        statusEl.style.color = 'var(--success)';
+        setTimeout(() => { statusEl.textContent = ''; }, 2000);
+      } catch (err) {
+        console.error('Upload error:', err);
+        statusEl.textContent = `Error: ${err.message}`;
+        statusEl.style.color = 'var(--danger)';
+      }
+    });
+
+    function deleteTurf(id) {
+      if (confirm('Delete this turf?')) {
+        delete turfData[id];
+        delete bookings[id];
+        delete blocked[id];
+        saveData();
+        loadTurfs();
+      }
+    }
+
+    // Init
+    loadDashboard();
+    loadTurfs();
+    loadSlotManagement();
+  </script>
+</body>
+</html>

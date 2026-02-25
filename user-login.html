@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>User Login - TurfArena</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --primary: #006FCD;
+      --primary-dark: #005A9E;
+      --bg: #0b1220;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+    }
+
+    body {
+      background: linear-gradient(-45deg, #020617, #1e3a8a, #0f172a, #134e4a, #1e40af);
+      background-size: 400% 400%;
+      animation: shiftColors 12s ease infinite;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: system-ui, sans-serif;
+      margin: 0;
+    }
+
+    @keyframes shiftColors {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .login-card {
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      padding: 32px;
+      border-radius: 24px;
+      width: min(400px, 90vw);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    h2 { margin-bottom: 24px; text-align: center; font-weight: 700; letter-spacing: -0.02em; }
+
+    .input-group { margin-bottom: 16px; display: flex; flex-direction: column; gap: 6px; }
+    label { font-size: 13px; color: var(--muted); margin-left: 12px; }
+    
+    input {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      padding: 12px 20px;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(0, 111, 205, 0.3);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(135deg, var(--primary), #0080FF);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 12px;
+      transition: transform 0.2s;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+
+    .error { color: #ef4444; font-size: 12px; text-align: center; margin-top: 12px; min-height: 18px; }
+    .back-link { display: block; text-align: center; margin-top: 20px; color: var(--muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <h2>User Login</h2>
+    <div class="input-group">
+      <label for="email">Email Address</label>
+      <input type="email" id="email" placeholder="user@example.com" value="test@example.com" />
+    </div>
+    <div class="input-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="••••••••" value="password123" />
+    </div>
+    <div class="error" id="loginError"></div>
+    <button class="btn" onclick="handleLogin()">Login</button>
+    <a href="index-1.html" class="back-link">← Back to Home</a>
+  </div>
+
+  <script>
+    function handleLogin() {
+      const email = document.getElementById('email').value;
+      const pass = document.getElementById('password').value;
+      const error = document.getElementById('loginError');
+
+      if (!email || !pass) {
+        error.textContent = "Please fill all fields.";
+        return;
+      }
+
+      // Mock user data
+      const userData = {
+        name: "Rahul Sharma",
+        email: email,
+        phone: "9876543210",
+        joinedDate: "Jan 2026"
+      };
+
+      localStorage.setItem('currentUser', JSON.stringify(userData));
+      window.location.href = 'user-dashboard.html';
+    }
+  </script>
+</body>
+</html>

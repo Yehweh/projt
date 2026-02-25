@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>User Dashboard - TurfArena</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --primary: #006FCD;
+      --primary-dark: #005A9E;
+      --bg: #0b1220;
+      --card-bg: #111827;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+    }
+
+    body {
+      background: linear-gradient(-45deg, #020617, #1e3a8a, #0f172a, #134e4a, #1e40af);
+      background-size: 400% 400%;
+      animation: shiftColors 12s ease infinite;
+      color: var(--text);
+      min-height: 100vh;
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      padding: 40px 5vw;
+    }
+
+    @keyframes shiftColors {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 32px;
+    }
+
+    .glass-card {
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      padding: 24px;
+      border-radius: 24px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      text-align: center;
+    }
+
+    .avatar {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, var(--primary), #0080FF);
+      border-radius: 50%;
+      margin: 0 auto 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      font-weight: 700;
+      box-shadow: 0 0 20px rgba(0, 111, 205, 0.5);
+    }
+
+    .profile-detail {
+      text-align: left;
+      font-size: 14px;
+    }
+
+    .profile-detail label {
+      color: var(--muted);
+      font-size: 12px;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .dashboard-main {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    h2 { margin: 0 0 16px; font-weight: 700; letter-spacing: -0.02em; }
+
+    .booking-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .booking-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 16px;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      transition: all 0.2s;
+    }
+
+    .booking-card:hover {
+      background: rgba(15, 23, 42, 0.9);
+      border-color: var(--primary);
+    }
+
+    .booking-turf { font-weight: 600; color: #BFDBFE; font-size: 16px; }
+    .booking-meta { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    .booking-price { font-weight: 700; font-size: 16px; color: #fff; }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 999px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: var(--text);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .header-nav {
+      margin-bottom: 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    @media (max-width: 768px) {
+      .container { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header-nav">
+    <a href="index-1.html" class="btn btn-outline">← Back to Booking</a>
+    <button class="btn btn-outline" onclick="handleLogout()" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">Logout</button>
+  </div>
+
+  <div class="container">
+    <div class="glass-card profile-info">
+      <div class="avatar" id="avatarInit">R</div>
+      <h3 id="userNameDisplay" style="margin: 0;">Rahul Sharma</h3>
+      <div style="border-top: 1px solid rgba(148, 163, 184, 0.2); padding-top: 16px; display: flex; flex-direction: column; gap: 12px;">
+        <div class="profile-detail">
+          <label>Email</label>
+          <span id="userEmailDisplay">rahul@example.com</span>
+        </div>
+        <div class="profile-detail">
+          <label>Phone</label>
+          <span id="userPhoneDisplay">+91 98765 43210</span>
+        </div>
+        <div class="profile-detail">
+          <label>Member Since</label>
+          <span id="userJoinDisplay">January 2026</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-main">
+      <div class="glass-card">
+        <h2>Past Bookings</h2>
+        <div class="booking-list" id="userBookingsList">
+          <!-- Dynamically filled -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function loadUserData() {
+      const user = JSON.parse(localStorage.getItem('currentUser'));
+      if (!user) {
+        window.location.href = 'user-login.html';
+        return;
+      }
+
+      document.getElementById('userNameDisplay').textContent = user.name;
+      document.getElementById('userEmailDisplay').textContent = user.email;
+      document.getElementById('userPhoneDisplay').textContent = user.phone;
+      document.getElementById('userJoinDisplay').textContent = user.joinedDate;
+      document.getElementById('avatarInit').textContent = user.name.charAt(0);
+
+      renderBookings();
+    }
+
+    function renderBookings() {
+      const list = document.getElementById('userBookingsList');
+      // Mock history since real bookings are stored per turf without user ID association in this demo
+      const mockHistory = [
+        { turf: "GreenLine Arena", date: "Feb 12, 2026", time: "6:00 PM – 7:00 PM", price: "₹1200", status: "Completed" },
+        { turf: "SkyLine Sports Hub", date: "Feb 08, 2026", time: "8:00 PM – 10:00 PM", price: "₹2000", status: "Completed" },
+        { turf: "Boundary Line Turf", date: "Feb 01, 2026", time: "7:00 AM – 8:00 AM", price: "₹800", status: "Cancelled" }
+      ];
+
+      list.innerHTML = mockHistory.map(b => `
+        <div class="booking-card">
+          <div>
+            <div class="booking-turf">${b.turf}</div>
+            <div class="booking-meta">${b.date} • ${b.time}</div>
+            <div class="booking-meta" style="color: ${b.status === 'Cancelled' ? '#ef4444' : '#10b981'}; font-weight: 600;">${b.status}</div>
+          </div>
+          <div class="booking-price">${b.price}</div>
+        </div>
+      `).join('');
+    }
+
+    function handleLogout() {
+      localStorage.removeItem('currentUser');
+      window.location.href = 'index-1.html';
+    }
+
+    window.onload = loadUserData;
+  </script>
+</body>
+</html>
