@@ -7,11 +7,11 @@
   <link rel="stylesheet" href="theme.css" />
   <style>
     
-    body {  background: var(--bg); color: var(--text-main); padding: 20px; }
+    body { padding: 40px; }
     header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(59, 130, 246, 0.3); padding-bottom: 15px; margin-bottom: 20px; }
-    .btn { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
+    .btn { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-family: 'Outfit', sans-serif;}
     .btn-danger { background: var(--danger); }
-    .control-panel { background: var(--card); padding: 15px; border-radius: 10px; display: flex; gap: 15px; margin-bottom: 20px; align-items: center; }
+    .control-panel { background: var(--card-bg); padding: 20px; border-radius: 12px; display: flex; gap: 15px; margin-bottom: 30px; align-items: center; border: 1px solid rgba(59, 130, 246, 0.2); }
     select, input { padding: 8px; border-radius: 5px; border: 1px solid rgba(59, 130, 246, 0.5); background: rgba(2, 6, 23, 0.8); color: white; }
     .slots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
     .slot { padding: 15px; text-align: center; background: rgba(2, 6, 23, 0.8); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; cursor: pointer; transition: 0.2s; }
@@ -63,7 +63,7 @@
 
       // Fetch Turfs to populate dropdown
       try {
-        const res = await fetch('http://localhost:5000/api/turfs');
+        const res = await fetch('/api/turfs');
         turfs = await res.json();
         
         const select = document.getElementById('turfSelect');
@@ -83,10 +83,10 @@
       if(!date || !turfId) return;
 
       try {
-        const bRes = await fetch(`http://localhost:5000/api/bookings?date=${date}`);
+        const bRes = await fetch(`/api/bookings?date=${date}`);
         bookings = await bRes.json();
 
-        const blRes = await fetch(`http://localhost:5000/api/blocked-slots?date=${date}`);
+        const blRes = await fetch(`/api/blocked-slots?date=${date}`);
         blockedSlots = await blRes.json();
 
         renderAdminSlots(turfId);
@@ -132,7 +132,7 @@
       msgEl.style.color = "#fbbf24";
 
       try {
-        await fetch('http://localhost:5000/api/blocked-slots', {
+        await fetch('/api/blocked-slots', {
           method: method,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ turfId, date, slotHour })
