@@ -25,7 +25,7 @@
     .auth-tabs {
       display: flex;
       margin-bottom: 24px;
-      border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+      border-bottom: 1px solid var(--border);
     }
 
     .auth-tab {
@@ -33,7 +33,7 @@
       text-align: center;
       padding: 12px;
       cursor: pointer;
-      color: var(--text-muted);
+      color: var(--text-secondary);
       font-weight: 600;
       transition: all 0.2s;
       text-transform: uppercase;
@@ -42,33 +42,116 @@
     }
 
     .auth-tab.active {
-      color: var(--primary);
-      border-bottom: 2px solid var(--primary);
-      text-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent);
     }
 
     .input-group { margin-bottom: 16px; display: flex; flex-direction: column; gap: 6px; }
-    
-    label { 
+
+    label {
       font-size: 11px; 
-      color: var(--text-muted); 
-      margin-left: 12px; 
+      color: var(--text-secondary);
+      margin-left: 12px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-    
+
     /* Applying global form class */
-    .input-group input { width: 100%; box-sizing: border-box; }
+    .input-group input { width: 100%; box-sizing: border-box; }    
 
     .message-box { font-size: 13px; text-align: center; margin-top: 12px; min-height: 18px; }
     .error { color: var(--danger); font-weight: 500; }
     .success { color: var(--success); font-weight: 500; }
-    
-    .back-link { display: block; text-align: center; margin-top: 24px; color: var(--text-muted); text-decoration: none; font-size: 13px; transition: 0.2s; }
-    .back-link:hover { color: var(--primary); }
+
+    .back-link { display: block; text-align: center; margin-top: 24px; color: var(--text-secondary); text-decoration: none; font-size: 13px; transition: 0.2s; }
+    .back-link:hover { color: var(--accent); }
+
+    /* Refined Password Validation UI */
+    .password-requirements {
+      font-size: 12px;
+      margin-top: 12px;
+      padding: 12px;
+      background: var(--input-bg);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .requirement {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      transition: color 0.3s ease;
+    }
+
+    .requirement i {
+      font-size: 12px;
+      width: 14px;
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+
+    .requirement.valid {
+      color: var(--success);
+    }
+
+    .requirement.valid i {
+      transform: scale(1.2);
+    }
+
+    /* Input Border States */
+    .premium-input {
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;    
+    }
+
+    .premium-input.is-invalid {
+      border-color: var(--danger) !important;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;    
+    }
+
+    .premium-input.is-valid {
+      border-color: var(--success) !important;
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15) !important;    
+    }
+
+    .theme-toggle-wrapper {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+    }
+
+    .theme-btn {
+      background: var(--glass-bg);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .theme-btn:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      transform: scale(1.1);
+    }
   </style>
 </head>
 <body>
+  <div class="theme-toggle-wrapper">
+    <button id="themeToggle" class="theme-btn">
+      <i class="fa-solid fa-moon"></i>
+    </button>
+  </div>
+
   <div class="auth-card glass-panel">
     <div class="auth-tabs">
       <div class="auth-tab active" id="tab-login" onclick="switchMode('login')">Login</div>
@@ -78,11 +161,11 @@
     <!-- Login Form -->
     <div id="login-form">
       <div class="input-group">
-        <label><i class="fa-solid fa-envelope" style="color:var(--primary);"></i> Email Address</label>
+        <label><i class="fa-solid fa-envelope" style="color:var(--accent);"></i> Email Address</label>
         <input type="email" class="premium-input" id="login-email" placeholder="user@example.com" />
       </div>
       <div class="input-group">
-        <label><i class="fa-solid fa-lock" style="color:var(--primary);"></i> Password</label>
+        <label><i class="fa-solid fa-lock" style="color:var(--accent);"></i> Password</label>
         <input type="password" class="premium-input" id="login-password" placeholder="••••••••" />
       </div>
       <div class="message-box" id="login-message"></div>
@@ -92,23 +175,30 @@
     <!-- Register Form -->
     <div id="register-form" style="display: none;">
       <div class="input-group">
-        <label><i class="fa-solid fa-user" style="color:var(--primary);"></i> Full Name</label>
+        <label><i class="fa-solid fa-user" style="color:var(--accent);"></i> Full Name</label>
         <input type="text" class="premium-input" id="reg-name" placeholder="John Doe" />
       </div>
       <div class="input-group">
-        <label><i class="fa-solid fa-phone" style="color:var(--primary);"></i> Mobile Number</label>
+        <label><i class="fa-solid fa-phone" style="color:var(--accent);"></i> Mobile Number</label>
         <input type="tel" class="premium-input" id="reg-phone" placeholder="10-digit number" />
       </div>
       <div class="input-group">
-        <label><i class="fa-solid fa-envelope" style="color:var(--primary);"></i> Email Address</label>
+        <label><i class="fa-solid fa-envelope" style="color:var(--accent);"></i> Email Address</label>
         <input type="email" class="premium-input" id="reg-email" placeholder="user@example.com" />
       </div>
       <div class="input-group">
-        <label><i class="fa-solid fa-lock" style="color:var(--primary);"></i> Password</label>
-        <input type="password" class="premium-input" id="reg-password" placeholder="••••••••" />
+        <label><i class="fa-solid fa-lock" style="color:var(--accent);"></i> Password</label>
+        <input type="password" class="premium-input" id="reg-password" placeholder="••••••••" onfocus="showRequirements()" oninput="validatePassword(this.value)" />
+        <div id="password-reqs" class="password-requirements">     
+          <div class="requirement" id="req-length"><i class="fa-solid fa-circle-notch"></i> At least 8 characters</div>
+          <div class="requirement" id="req-upper"><i class="fa-solid fa-circle-notch"></i> At least 1 uppercase letter</div>
+          <div class="requirement" id="req-lower"><i class="fa-solid fa-circle-notch"></i> At least 1 lowercase letter</div>
+          <div class="requirement" id="req-number"><i class="fa-solid fa-circle-notch"></i> At least 1 number</div>
+          <div class="requirement" id="req-special"><i class="fa-solid fa-circle-notch"></i> At least 1 special character</div>       
+        </div>
       </div>
       <div class="message-box" id="reg-message"></div>
-      <button class="btn-gold" style="width: 100%;" onclick="handleAuth('register')"><i class="fa-solid fa-user-plus"></i> Create Account</button>
+      <button class="btn-gold" style="width: 100%;" id="reg-btn" onclick="handleAuth('register')"><i class="fa-solid fa-user-plus"></i> Create Account</button>
     </div>
 
     <a href="index.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back to Reservations</a>
@@ -117,28 +207,87 @@
   <script>
     let mode = 'login';
 
+    // --- Theme Sync & Toggle ---
+    const themeToggle = document.getElementById('themeToggle');
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    themeToggle.innerHTML = savedTheme === 'light' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      themeToggle.innerHTML = newTheme === 'light' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+    });
+
     function switchMode(newMode) {
       mode = newMode;
       document.getElementById('login-form').style.display = mode === 'login' ? 'block' : 'none';
       document.getElementById('register-form').style.display = mode === 'register' ? 'block' : 'none';
-      
+
       document.getElementById('tab-login').classList.toggle('active', mode === 'login');
       document.getElementById('tab-register').classList.toggle('active', mode === 'register');
-      
+
       clearMessages();
     }
 
     function clearMessages() {
-      document.getElementById('login-message').textContent = "";
-      document.getElementById('reg-message').textContent = "";
+      document.getElementById('login-message').textContent = "";   
+      document.getElementById('reg-message').textContent = "";     
       document.getElementById('login-message').className = "message-box";
       document.getElementById('reg-message').className = "message-box";
     }
 
     function showMessage(type, text, isError = true) {
-      const el = document.getElementById(`${type}-message`);
+      const el = document.getElementById(`${type}-message`);       
       el.textContent = text;
       el.className = `message-box ${isError ? 'error' : 'success'}`;
+    }
+
+    // --- PASSWORD VALIDATION LOGIC ---
+    function showRequirements() {
+      document.getElementById('password-reqs').style.display = 'flex';
+    }
+
+    function validatePassword(pass) {
+      const requirements = {
+        length: pass.length >= 8,
+        upper: /[A-Z]/.test(pass),
+        lower: /[a-z]/.test(pass),
+        number: /[0-9]/.test(pass),
+        special: /[!@#$%^&*(),.?":{}|<>]/.test(pass)
+      };
+
+      const iconMap = {
+        valid: 'fa-solid fa-check-circle',
+        invalid: 'fa-solid fa-circle-notch'
+      };
+
+      let allValid = true;
+      for (const [key, valid] of Object.entries(requirements)) {   
+        const el = document.getElementById(`req-${key}`);
+        const icon = el.querySelector('i');
+
+        if (valid) {
+          el.classList.add('valid');
+          icon.className = iconMap.valid;
+        } else {
+          el.classList.remove('valid');
+          icon.className = iconMap.invalid;
+          allValid = false;
+        }
+      }
+
+      const input = document.getElementById('reg-password');       
+      if (pass.length > 0) {
+        input.classList.toggle('is-valid', allValid);
+        input.classList.toggle('is-invalid', !allValid);
+      } else {
+        input.classList.remove('is-valid', 'is-invalid');
+      }
+
+      return allValid;
     }
 
     async function handleAuth(action) {
@@ -156,7 +305,15 @@
         const email = document.getElementById('reg-email').value.trim();
         const phone = document.getElementById('reg-phone').value.trim();
         const pass = document.getElementById('reg-password').value.trim();
+
         if (!name || !email || !phone || !pass) return showMessage('reg', 'Please fill all fields');
+
+        // --- Password Constraint Check ---
+        if (!validatePassword(pass)) {
+          showMessage('reg', 'Password does not meet requirements');
+          return;
+        }
+
         payload = { name, email, phone, password: pass };
       }
 
@@ -166,7 +323,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-        
+
         const data = await response.json();
         
         if (!response.ok) {
@@ -175,9 +332,9 @@
         }
 
         showMessage(action === 'login' ? 'login' : 'reg', data.message, false);
-        
+
         localStorage.setItem('currentUser', JSON.stringify(data.user));
-        
+
         setTimeout(() => {
           window.location.href = 'user-dashboard.html';
         }, 800);

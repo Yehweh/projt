@@ -17,7 +17,7 @@
     }
 
     body {
-      color: var(--text-main);
+      color: var(--text-primary);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -28,9 +28,9 @@
       justify-content: space-between;
       align-items: center;
       padding: 16px 5vw;
-      background: rgba(15, 23, 42, 0.9);
+      background: var(--glass-bg);
       backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+      border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
       z-index: 20;
@@ -54,7 +54,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+      box-shadow: 0 0 20px var(--accent-soft);
       font-size: 18px;
     }
 
@@ -79,25 +79,25 @@
 
     .btn-primary {
       background: var(--blue-gradient);
-      color: #fff;
-      box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+      color: var(--btn-text);
+      box-shadow: 0 10px 25px var(--accent-soft);
     }
 
     .btn-primary:hover {
       transform: translateY(-2px) scale(1.02);
-      box-shadow: 0 15px 35px rgba(59, 130, 246, 0.5);
+      box-shadow: 0 15px 35px var(--accent-soft);
       filter: brightness(1.1);
     }
 
     .btn-outline {
       background: transparent;
-      border: 1px solid rgba(59, 130, 246, 0.6);
-      color: var(--text-main);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
     }
 
     .btn-outline:hover {
-      background: rgba(15, 23, 42, 0.85);
-      border-color: var(--primary);
+      background: var(--accent-soft);
+      border-color: var(--accent);
       transform: translateY(-1px);
     }
 
@@ -118,10 +118,11 @@
       font-size: clamp(26px, 4vw, 34px);
       margin-bottom: 8px;
       animation: glowPulse 4s ease-in-out infinite alternate;
+      color: var(--text-primary);
     }
 
     .hero-text p {
-      color: var(--muted);
+      color: var(--text-secondary);
       font-size: 14px;
       max-width: 480px;
     }
@@ -132,8 +133,8 @@
       gap: 6px;
       padding: 4px 10px;
       border-radius: 999px;
-      background: rgba(59, 130, 246, 0.15);
-      color: #fff;
+      background: var(--accent-soft);
+      color: var(--text-primary);
       font-size: 12px;
       margin-bottom: 10px;
     }
@@ -142,13 +143,18 @@
       position: relative;
       border-radius: 24px;
       overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+      min-height: 220px;
+      display: flex;
+      align-items: stretch;
+      border: 1px solid var(--border);
+    }
+
+    [data-theme="dark"] .hero-card {
       box-shadow:
         0 30px 80px rgba(0, 0, 0, 0.7),
         0 0 0 1px rgba(59, 130, 246, 0.25),
         0 0 60px rgba(59, 130, 246, 0.2);
-      min-height: 220px;
-      display: flex;
-      align-items: stretch;
     }
 
     .hero-gif-wrap {
@@ -174,9 +180,9 @@
       inset: 0;
       background: linear-gradient(
         135deg,
-        rgba(2, 6, 23, 0.45) 0%,
-        rgba(15, 23, 42, 0.15) 50%,
-        rgba(2, 6, 23, 0.6) 100%
+        rgba(0, 0, 0, 0.3) 0%,
+        rgba(0, 0, 0, 0.1) 50%,
+        rgba(0, 0, 0, 0.4) 100%
       );
       border-radius: 24px;
       pointer-events: none;
@@ -188,12 +194,10 @@
       position: absolute;
       inset: 0;
       border-radius: 24px;
-      border: 1px solid rgba(59, 130, 246, 0.5);
+      border: 1px solid var(--accent);
       z-index: 2;
       pointer-events: none;
-      box-shadow:
-        inset 0 0 30px rgba(59, 130, 246, 0.08),
-        0 0 40px rgba(59, 130, 246, 0.25);
+      opacity: 0.3;
     }
 
     .hero-gif-overlay {
@@ -209,19 +213,19 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      background: rgba(2, 6, 23, 0.78);
+      background: var(--glass-bg);
       backdrop-filter: blur(14px);
-      border: 1px solid rgba(59, 130, 246, 0.4);
+      border: 1px solid var(--border);
       border-radius: 999px;
       padding: 5px 12px;
       font-size: 11px;
       font-weight: 600;
-      color: #e2e8f0;
+      color: var(--text-primary);
       white-space: nowrap;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
     }
 
-    .gif-stat i { color: var(--primary); }
+    .gif-stat i { color: var(--accent); }
 
     .gif-stat-tl {
       top: 14px; left: 14px;
@@ -262,17 +266,15 @@
     @keyframes glowPulse {
       from {
         text-shadow:
-          0 0 7px #fff,
-          0 0 15px #3b82f6,
-          0 0 30px var(--primary);
+          0 0 7px var(--accent-soft),
+          0 0 15px var(--accent);
       }
 
       to {
         text-shadow:
-          0 0 10px #fff,
-          0 0 25px #3b82f6,
-          0 0 50px var(--primary),
-          0 0 70px #3b82f6;
+          0 0 10px var(--accent-soft),
+          0 0 25px var(--accent),
+          0 0 50px var(--accent-soft);
       }
     }
 
@@ -286,11 +288,12 @@
 
     .section-header h2 {
       font-size: 18px;
+      color: var(--text-primary);
     }
 
     .section-header span {
       font-size: 12px;
-      color: var(--muted);
+      color: var(--text-secondary);
     }
 
     .turf-grid {
@@ -300,12 +303,10 @@
     }
 
     .turf-card {
-      background: linear-gradient(135deg,
-          rgba(59, 130, 246, 0.15),
-          transparent 55%);
+      background: var(--surface);
       border-radius: 18px;
       padding: 10px;
-      border: 1px solid rgba(59, 130, 246, 0.35);
+      border: 1px solid var(--border);
       position: relative;
       overflow: hidden;
       cursor: pointer;
@@ -314,6 +315,11 @@
 
     .turf-card:hover {
       transform: translateY(-8px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+      border-color: var(--accent);
+    }
+
+    [data-theme="dark"] .turf-card:hover {
       box-shadow:
         0 25px 50px rgba(0, 0, 0, 0.6),
         0 0 20px rgba(59, 130, 246, 0.2);
@@ -343,22 +349,24 @@
       position: absolute;
       bottom: 8px;
       left: 8px;
-      background: rgba(15, 23, 42, 0.9);
-      color: #fff;
+      background: var(--glass-bg);
+      color: var(--text-primary);
       padding: 2px 8px;
       border-radius: 999px;
       font-size: 11px;
+      border: 1px solid var(--border);
     }
 
     .turf-price-pill {
       position: absolute;
       top: 8px;
       right: 8px;
-      background: rgba(15, 23, 42, 0.88);
-      color: #e5e7eb;
+      background: var(--glass-bg);
+      color: var(--text-primary);
       padding: 2px 8px;
       border-radius: 999px;
       font-size: 11px;
+      border: 1px solid var(--border);
     }
 
     .turf-title-row {
@@ -371,16 +379,17 @@
     .turf-name {
       font-weight: 600;
       font-size: 13px;
+      color: var(--text-primary);
     }
 
     .turf-location {
       font-size: 11px;
-      color: var(--muted);
+      color: var(--text-secondary);
     }
 
     .badge-success {
-      border: 1px solid rgba(59, 130, 246, 0.9);
-      color: #fff;
+      border: 1px solid var(--accent);
+      color: var(--text-primary);
       font-size: 11px;
       padding: 2px 8px;
       border-radius: 999px;
@@ -396,7 +405,7 @@
     .slot-modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.85);
+      background: rgba(0, 0, 0, 0.6);
       backdrop-filter: blur(12px);
       display: none;
       align-items: center;
@@ -405,16 +414,16 @@
     }
 
     .slot-modal {
-      background: #0f172a;
+      background: var(--surface);
       border-radius: 20px;
-      border: 1px solid rgba(59, 130, 246, 0.5);
+      border: 1px solid var(--border);
       width: min(900px, 96vw);
       max-height: 90vh;
       padding: 16px;
       display: grid;
       grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
       gap: 12px;
-      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
       overflow-y: auto;
     }
 
@@ -427,8 +436,8 @@
 
     .close-btn {
       background: transparent;
-      color: var(--muted);
-      border: 1px solid rgba(59, 130, 246, 0.6);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
       border-radius: 50%;
       width: 24px;
       height: 24px;
@@ -436,11 +445,10 @@
     }
 
     .slots-container {
-      background: linear-gradient(135deg,
-          rgba(59, 130, 246, 0.1),
-          #0f172a 65%);
+      background: var(--input-bg);
       padding: 10px;
       border-radius: 14px;
+      border: 1px solid var(--border);
     }
 
     .slots-grid {
@@ -458,41 +466,43 @@
       text-align: center;
       border-radius: 99px;
       cursor: pointer;
-      border: 1px solid rgba(59, 130, 246, 0.6);
-      background: rgba(2, 6, 23, 0.8);
-      color: #9ca3af;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-secondary);
     }
 
     .slot-pill.free:hover {
-      border-color: var(--primary);
-      color: #60a5fa;
+      border-color: var(--accent);
+      color: var(--accent);
     }
 
     .slot-pill.selected {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
+      background: var(--accent);
+      color: var(--btn-text);
+      border-color: var(--accent);
     }
 
     .slot-pill.booked {
-      background: var(--primary-hover);
-      color: #60a5fa;
+      background: var(--accent-soft);
+      color: var(--text-secondary);
       cursor: not-allowed;
+      opacity: 0.6;
     }
 
     .slot-pill.blocked {
-      background: rgba(15, 23, 42, 0.9);
+      background: var(--bg);
       border-style: dashed;
       cursor: not-allowed;
     }
 
     .booking-form {
-      background: rgba(2, 6, 23, 0.8);
+      background: var(--input-bg);
       padding: 12px;
       border-radius: 14px;
       display: flex;
       flex-direction: column;
       gap: 8px;
+      border: 1px solid var(--border);
     }
 
     .input-group {
@@ -503,16 +513,16 @@
 
     .input-group label {
       font-size: 11px;
-      color: #9ca3af;
+      color: var(--text-secondary);
     }
 
     .input-group input,
     .input-group select {
       padding: 6px 12px;
       border-radius: 99px;
-      border: 1px solid rgba(59, 130, 246, 0.5);
-      background: rgba(15, 23, 42, 0.9);
-      color: white;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-primary);
     }
 
     .form-actions {
@@ -523,14 +533,14 @@
     }
 
     .error {
-      color: #ef4444;
+      color: var(--danger);
       font-size: 12px;
     }
 
     .right-panel-header {
       display: flex;
       gap: 10px;
-      border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+      border-bottom: 1px solid var(--border);
       padding-bottom: 5px;
       margin-bottom: 10px;
     }
@@ -538,12 +548,12 @@
     .panel-tab {
       font-size: 14px;
       cursor: pointer;
-      color: #9ca3af;
+      color: var(--text-secondary);
     }
 
     .panel-tab.active {
-      color: white;
-      border-bottom: 2px solid var(--primary);
+      color: var(--text-primary);
+      border-bottom: 2px solid var(--accent);
     }
 
     .openings-list {
@@ -555,15 +565,17 @@
     }
 
     .opening-card {
-      background: rgba(15, 23, 42, 0.9);
+      background: var(--surface);
       padding: 8px;
       border-radius: 8px;
       font-size: 12px;
+      border: 1px solid var(--border);
+      color: var(--text-primary);
     }
 
     .join-btn {
-      background: var(--primary);
-      color: white;
+      background: var(--accent);
+      color: var(--btn-text);
       border: none;
       padding: 4px 8px;
       border-radius: 4px;
@@ -578,6 +590,7 @@
       margin-bottom: 10px;
       border-radius: 8px;
       overflow: hidden;
+      border: 1px solid var(--border);
     }
 
     #panorama {
@@ -586,8 +599,8 @@
     }
 
     .view-360-btn {
-      background: var(--primary);
-      color: white;
+      background: var(--accent);
+      color: var(--btn-text);
       border: none;
       padding: 4px 10px;
       border-radius: 99px;
@@ -607,72 +620,29 @@
       display: none;
       align-items: center;
       justify-content: center;
-      background: rgba(2, 6, 23, 0.92);
+      background: rgba(0, 0, 0, 0.8);
       backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
     }
 
     .pg-card {
-      background: linear-gradient(
-        135deg,
-        rgba(15, 23, 42, 0.95) 0%,
-        rgba(10, 17, 38, 0.98) 100%
-      );
-      border: 1px solid rgba(59, 130, 246, 0.35);
+      background: var(--glass-bg);
+      border: 1px solid var(--border);
       border-radius: 28px;
       padding: 40px 36px;
       width: min(440px, 94vw);
-      box-shadow:
-        0 40px 100px rgba(0, 0, 0, 0.9),
-        0 0 60px rgba(59, 130, 246, 0.15),
-        inset 0 1px 0 rgba(255,255,255,0.06);
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.3);
       text-align: center;
       position: relative;
       overflow: hidden;
     }
 
-    /* subtle animated grain overlay on the card */
-    .pg-card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-      border-radius: 28px;
-      pointer-events: none;
-    }
-
-    /* ── Processing View ── */
-    #pgProcessing { display: block; }
-    #pgReceipt   { display: none; }
-    #pgFailed    { display: none; }
-
-    .pg-logo-pulse {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      background: var(--blue-gradient);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 30px;
-      margin: 0 auto 20px;
-      animation: logoPulse 1.6s ease-in-out infinite;
-      box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
-    }
-
-    @keyframes logoPulse {
-      0%   { box-shadow: 0 0 0 0   rgba(59,130,246,0.7); transform: scale(1);    }
-      50%  { box-shadow: 0 0 0 20px rgba(59,130,246,0);   transform: scale(1.06); }
-      100% { box-shadow: 0 0 0 0   rgba(59,130,246,0);    transform: scale(1);    }
-    }
-
-    .pg-title  { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
-    .pg-subtitle { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+    .pg-title  { font-size: 18px; font-weight: 700; margin-bottom: 6px; color: var(--text-primary); }
+    .pg-subtitle { font-size: 13px; color: var(--text-secondary); margin-bottom: 28px; }
 
     .pg-progress-track {
       width: 100%;
       height: 6px;
-      background: rgba(255,255,255,0.08);
+      background: var(--input-bg);
       border-radius: 99px;
       overflow: hidden;
       margin-bottom: 14px;
@@ -681,135 +651,71 @@
     .pg-progress-bar {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, #3b82f6, #60a5fa, #93c5fd);
+      background: var(--blue-gradient);
       border-radius: 99px;
       transition: width 3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .pg-step-text {
       font-size: 12px;
-      color: var(--muted);
+      color: var(--text-secondary);
       min-height: 18px;
-      transition: opacity 0.3s;
-    }
-
-    /* ── Receipt View ── */
-    .receipt-check {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      margin: 0 auto 16px;
-      animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
-    }
-
-    @keyframes popIn {
-      from { transform: scale(0); opacity: 0; }
-      to   { transform: scale(1); opacity: 1; }
     }
 
     .receipt-title {
       font-size: 18px;
       font-weight: 700;
       margin-bottom: 4px;
+      color: var(--text-primary);
     }
     .receipt-subtitle {
       font-size: 12px;
-      color: #4ade80;
+      color: var(--success);
       margin-bottom: 22px;
     }
 
     .receipt-table {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(59,130,246,0.2);
+      background: var(--input-bg);
+      border: 1px solid var(--border);
       border-radius: 14px;
       padding: 14px 16px;
       margin-bottom: 18px;
       text-align: left;
     }
 
-    .receipt-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 12px;
-      padding: 4px 0;
+    .receipt-row .val { color: var(--text-primary); font-weight: 500; }
+    .receipt-row .val.green { color: var(--success); }
+
+    .toast-notification {
+      background: var(--glass-bg);
+      backdrop-filter: blur(8px);
+      color: var(--text-primary);
+      padding: 12px 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     }
+    .toast-message { color: var(--text-secondary); }
+    .toast-close { color: var(--text-secondary); }
 
-    .receipt-row:not(:last-child) {
-      border-bottom: 1px solid rgba(59,130,246,0.1);
-    }
-
-    .receipt-row .lbl { color: var(--muted); }
-    .receipt-row .val { color: #e2e8f0; font-weight: 500; }
-    .receipt-row .val.green { color: #4ade80; }
-    .receipt-row .val.amount { font-size: 15px; font-weight: 700; }
-
-    .receipt-qr {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 20px;
-    }
-
-    .receipt-qr img {
-      width: 120px;
-      height: 120px;
-      border-radius: 10px;
-      border: 2px solid rgba(59,130,246,0.4);
-      background: white;
-      padding: 4px;
-    }
-
-    .receipt-qr-label {
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    .receipt-txn {
-      font-size: 10px;
-      color: #6b7280;
-      margin-bottom: 20px;
-      font-family: monospace;
-      letter-spacing: 0.05em;
-    }
-
-    /* ── Failed View ── */
-    .fail-icon {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #ef4444, #b91c1c);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      margin: 0 auto 16px;
-      animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
-    }
-
-    .fail-title    { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
-    .fail-subtitle { font-size: 13px; color: #f87171; margin-bottom: 24px; }
-
-    @media (max-width: 480px) {
-      .pg-card { padding: 28px 20px; }
-      .receipt-qr img { width: 100px; height: 100px; }
-    }
   </style>
 </head>
 
 <body>
+  <div id="toast-container"></div>
   <header>
     <div class="logo">
       <div class="logo-icon"><i class="fa-solid fa-crown"></i></div>
       <span>TurfArena</span>
     </div>
     <div class="header-actions">
+      <div class="search-container" style="position: relative; margin-right: 10px;">
+        <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); font-size: 14px;"></i>
+        <input type="text" id="turfSearch" placeholder="Search turfs..." style="padding: 8px 12px 8px 36px; border-radius: 999px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text-primary); font-size: 14px; width: 200px; outline: none; transition: all 0.3s ease;">
+      </div>
+      <button id="themeToggle" class="btn btn-outline" style="padding: 8px; width: 36px; height: 36px; justify-content: center;">
+        <i class="fa-solid fa-moon"></i>
+      </button>
       <span id="visitCountDisplay" style="
             font-size: 12px;
             color: var(--primary);
@@ -1096,6 +1002,39 @@
 
     // --- INIT & FETCH DATA ---
     async function init() {
+      // --- Theme Initialization ---
+      const themeToggle = document.getElementById('themeToggle');
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      themeToggle.innerHTML = savedTheme === 'light' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+
+      themeToggle.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        
+        // Start animation
+        themeToggle.classList.add('animating');
+        
+        setTimeout(() => {
+          document.documentElement.setAttribute('data-theme', newTheme);
+          localStorage.setItem('theme', newTheme);
+          themeToggle.innerHTML = newTheme === 'light' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+          themeToggle.classList.remove('animating');
+        }, 250);
+      });
+
+      // --- Search Implementation ---
+      const searchInput = document.getElementById('turfSearch');
+      searchInput.addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+        const cards = document.querySelectorAll('.turf-card');
+        cards.forEach(card => {
+          const name = card.querySelector('.turf-name').textContent.toLowerCase();
+          card.style.display = name.includes(term) ? 'block' : 'none';
+        });
+      });
+
       trackVisits();
       await fetchAllOpenings();
 
@@ -1178,7 +1117,7 @@
 
     async function fetchAllOpenings() {
       try {
-        const response = await fetch("http://localhost:5000/api/openings");
+        const response = await fetch("/api/openings");
         if (response.ok) {
           teamOpenings = await response.json();
         }
@@ -1241,7 +1180,7 @@
     }
 
     // --- MODALS & INTERACTION ---
-    function openModal(id) {
+    async function openModal(id) {
       currentTurfId = id;
       const turf = turfData[id];
       document.getElementById("modalTurfName").textContent = turf.name;
@@ -1254,6 +1193,9 @@
       updateBookingSummary();
       renderSlots();
       switchTab("booking");
+      
+      // Refresh openings from server every time modal opens
+      await fetchAllOpenings();
 
       document.getElementById("slotModalBackdrop").style.display = "flex";
     }
@@ -1514,8 +1456,8 @@
 
     // ── Show the failed state ──
     function showFailed(msg) {
-      document.getElementById('pgFailMsg').textContent =
-        msg || 'Your booking could not be processed. Please try again.';
+      const errorMsg = msg || 'Your booking could not be processed. Please try again.';
+      alert('Error: ' + errorMsg);
       isProcessingPayment = false;
       // Re-enable confirm button so it's ready if user hits Cancel
       const confirmBtn = document.querySelector('.booking-form .btn-primary');
@@ -1544,21 +1486,21 @@
         return alert("Select slots first to calculate fare.");
 
       const sport = document.getElementById("postSport").value;
-      // Fallback to 2 seats if the input doesn't exist in the HTML
       const seatsInput = document.getElementById("postSeats");
       const seats = seatsInput ? parseInt(seatsInput.value) : 2;
-      const size = parseInt(document.getElementById("postTeamSize").value);
+      const sizeInput = document.getElementById("postTeamSize");
+      const size = sizeInput ? parseInt(sizeInput.value) : 10;
+      
       const fare = Math.ceil(
-        (selectedSlots.length * turfData[currentTurfId].basePrice) / size,
+        (selectedSlots.length * (turfData[currentTurfId]?.basePrice || 0)) / size,
       );
 
       try {
-        // Send data to Oracle Database via Node API
-        const response = await fetch("http://localhost:5000/api/openings", {
+        const response = await fetch("/api/openings", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            turfId: currentTurfId,
+            turfId: parseInt(currentTurfId),
             sport: sport,
             seats: seats,
             teamSize: size,
@@ -1569,11 +1511,10 @@
         if (!response.ok) throw new Error("Database saving failed.");
 
         alert("Opening posted successfully!");
-        await fetchAllOpenings(); // Fetch the fresh list from the database
-        renderOpenings(); // Update the UI
+        await fetchAllOpenings(); 
+        renderOpenings(); 
       } catch (err) {
         console.error(err);
-        // Fallback if DB is offline
         if (!teamOpenings[currentTurfId]) teamOpenings[currentTurfId] = [];
         teamOpenings[currentTurfId].unshift({
           id: Date.now(),
@@ -1602,6 +1543,25 @@
       localStorage.setItem("visitCounter", ++visits);
       document.getElementById("visitCountDisplay").textContent =
         `Visits: ${visits}`;
+    }
+
+    function showToast(message, title = "Success") {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast-notification';
+      toast.innerHTML = `
+        <div class="toast-icon">✓</div>
+        <div class="toast-content">
+          <div class="toast-title" style="font-weight: 700; font-size: 14px;">${title}</div>
+          <div class="toast-message" style="font-size: 12px; color: #9ca3af;">${message}</div>
+        </div>
+        <button class="toast-close" onclick="this.parentElement.remove()">&times;</button>
+      `;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.classList.add('fade-out');
+        toast.addEventListener('animationend', () => toast.remove());
+      }, 3000);
     }
 
     window.onload = init;

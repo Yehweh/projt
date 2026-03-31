@@ -62,7 +62,22 @@ async function initDB() {
       fare INTEGER,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
+    CREATE TABLE IF NOT EXISTS Reviews (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      rating INTEGER,
+      comment TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS PlatformStats (
+      id INTEGER PRIMARY KEY,
+      manual_user_count INTEGER DEFAULT 0,
+      manual_booking_count INTEGER DEFAULT 0
+    );
   `);
+
+  // Initialize stats row if missing
+  await db.run('INSERT OR IGNORE INTO PlatformStats (id, manual_user_count, manual_booking_count) VALUES (1, 150, 1200)');
 
   // Seed turfs if none exist
   const count = await db.get('SELECT COUNT(*) as count FROM Turfs');
@@ -153,6 +168,36 @@ app.get('/api/turfs', async (req, res) => {
       };
     });
     res.json(turfData);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Update Turf Details
+app.put('/api/turfs/:id', async (req, res) => {
+  try {
+    const { name, meta, basePrice, panoramaUrl } = req.body;
+    const { id } = req.params;
+    await db.run(
+      'UPDATE Turfs SET name = ?, meta = ?, basePrice = ?, panoramaUrl = ? WHERE id = ?',
+      [name, meta, basePrice, panoramaUrl, id]
+    );
+    res.json({ message: 'Turf updated successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete Turf
+app.delete('/api/turfs/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await db.run('DELETE FROM Turfs WHERE id = ?', [id]);
+    // Also clean up related bookings and openings
+    await db.run('DELETE FROM Bookings WHERE turf_id = ?', [id]);
+    await db.run('DELETE FROM TeamOpenings WHERE turf_id = ?', [id]);
+    await db.run('DELETE FROM BlockedSlots WHERE turf_id = ?', [id]);
+    res.json({ message: 'Turf deleted successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -309,11 +354,100 @@ app.get('/api/openings', async (req, res) => {
   }
 });
 
+// --- NEW STATS ENDPOINT FOR HERO SECTION ---
+app.get('/api/stats', async (req, res) => {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Total Turfs
+    const turfCount = await db.get('SELECT COUNT(*) as count FROM Turfs');
+    
+    // Slots booked today across all turfs
+    const bookedToday = await db.get('SELECT COUNT(*) as count FROM Bookings WHERE booking_date = ?', [today]);
+    
+    // Blocked slots today
+    const blockedToday = await db.get('SELECT COUNT(*) as count FROM BlockedSlots WHERE blocked_date = ?', [today]);
+    
+    // Total capacity = Turfs * 24 hours
+    const totalCapacity = turfCount.count * 24;
+    const availableSlots = totalCapacity - (bookedToday.count + blockedToday.count);
+
+    res.json({
+      turfCount: turfCount.count,
+      availableSlots: Math.max(0, availableSlots),
+      fillingFastCount: Math.ceil(turfCount.count * 0.7) // Mock logic for filling fast
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.post('/api/openings', async (req, res) => {
   try {
     const { turfId, sport, seats, teamSize, fare } = req.body;
     await db.run('INSERT INTO TeamOpenings (turf_id, sport, seats, team_size, fare) VALUES (?, ?, ?, ?, ?)', [turfId, sport, seats, teamSize, fare]);
     res.json({ message: 'Team opening posted successfully!' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// --- REVIEWS & STATS ROUTES ---
+
+app.get('/api/reviews', async (req, res) => {
+  try {
+    const rows = await db.all('SELECT * FROM Reviews ORDER BY created_at DESC');
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/reviews', async (req, res) => {
+  try {
+    const { name, rating, comment } = req.body;
+    await db.run('INSERT INTO Reviews (name, rating, comment) VALUES (?, ?, ?)', [name, rating, comment]);
+    res.json({ message: 'Review added successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/reviews/:id', async (req, res) => {
+  try {
+    await db.run('DELETE FROM Reviews WHERE id = ?', [req.params.id]);
+    res.json({ message: 'Review deleted' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/platform-stats', async (req, res) => {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const liveStats = await db.get('SELECT COUNT(*) as live_bookings FROM Bookings');
+    const liveUsers = await db.get('SELECT COUNT(*) as live_users FROM Users');
+    const liveTurfs = await db.get('SELECT COUNT(*) as live_turfs FROM Turfs');
+    const bookingsToday = await db.get('SELECT COUNT(*) as today FROM Bookings WHERE booking_date = ?', [today]);
+    const manualStats = await db.get('SELECT * FROM PlatformStats WHERE id = 1');
+
+    res.json({
+      totalBookings: (manualStats?.manual_booking_count || 0) + liveStats.live_bookings,
+      activeUsers: (manualStats?.manual_user_count || 0) + liveUsers.live_users,
+      totalTurfs: liveTurfs.live_turfs,
+      bookingsToday: bookingsToday.today
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put('/api/platform-stats', async (req, res) => {
+  try {
+    const { manual_user_count, manual_booking_count } = req.body;
+    await db.run('UPDATE PlatformStats SET manual_user_count = ?, manual_booking_count = ? WHERE id = 1', 
+      [manual_user_count, manual_booking_count]);
+    res.json({ message: 'Stats updated successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
