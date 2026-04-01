@@ -698,6 +698,23 @@
     .toast-message { color: var(--text-secondary); }
     .toast-close { color: var(--text-secondary); }
 
+    /* Rating Stars */
+    .rating-stars {
+      display: flex;
+      gap: 5px;
+      color: #fbbf24;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+    .rating-stars i { cursor: pointer; }
+    .turf-rating-display {
+      font-size: 12px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
   </style>
 </head>
 
@@ -826,6 +843,7 @@
         <div class="right-panel-header">
           <span class="panel-tab active" id="tabBooking" onclick="switchTab('booking')">Booking details</span>
           <span class="panel-tab" id="tabOpenings" onclick="switchTab('openings')">Team openings</span>
+          <span class="panel-tab" id="tabReviews" onclick="switchTab('reviews')">Reviews</span>
         </div>
 
         <div id="bookingSection" style="display: flex; flex-direction: column; gap: 10px">
@@ -888,6 +906,21 @@
           <button class="btn btn-primary" onclick="postOpening()">
             Post Opening
           </button>
+        </div>
+
+        <div id="reviewsSection" style="display: none; flex-direction: column; gap: 10px">
+          <div id="reviewsList" style="max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;"></div>
+          <hr style="border-color: rgba(59, 130, 246, 0.3); margin: 10px 0" />
+          <p style="font-size: 12px; color: #bfdbfe">Rate this Turf</p>
+          <div class="rating-stars" id="ratingInput">
+            <i class="fa-regular fa-star" data-value="1" onclick="setRating(1)"></i>
+            <i class="fa-regular fa-star" data-value="2" onclick="setRating(2)"></i>
+            <i class="fa-regular fa-star" data-value="3" onclick="setRating(3)"></i>
+            <i class="fa-regular fa-star" data-value="4" onclick="setRating(4)"></i>
+            <i class="fa-regular fa-star" data-value="5" onclick="setRating(5)"></i>
+          </div>
+          <textarea id="reviewComment" placeholder="Leave a comment..." style="padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text-primary); font-size: 12px; resize: none; height: 60px;"></textarea>
+          <button class="btn btn-primary" onclick="submitReview()">Submit Review</button>
         </div>
       </div>
     </div>
@@ -1007,21 +1040,13 @@
       const savedTheme = localStorage.getItem('theme') || 'dark';
       
       document.documentElement.setAttribute('data-theme', savedTheme);
-      themeToggle.innerHTML = savedTheme === 'light' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
 
       themeToggle.addEventListener('click', () => {
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const newTheme = currentTheme === 'light' ? 'dark' : 'light';
         
-        // Start animation
-        themeToggle.classList.add('animating');
-        
-        setTimeout(() => {
-          document.documentElement.setAttribute('data-theme', newTheme);
-          localStorage.setItem('theme', newTheme);
-          themeToggle.innerHTML = newTheme === 'light' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
-          themeToggle.classList.remove('animating');
-        }, 250);
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
       });
 
       // --- Search Implementation ---
@@ -1133,7 +1158,7 @@
       Object.entries(turfData).forEach(([id, turf]) => {
         const article = document.createElement("div");
         article.className = "turf-card";
-        const img = turfImages[id] ? turfImages[id][0] : "";
+        const img = turf.imageUrl || (turfImages[id] ? turfImages[id][0] : "");
         article.innerHTML = `
           <div class="turf-image">
             <div class="turf-image-inner" id="turf-img-${id}" style="background-image: url('${img}');"></div>
@@ -1145,10 +1170,32 @@
             <span class="badge-success">Open</span>
           </div>
           <div class="turf-location">${turf.meta.split(" • ")[0]}</div>
+          <div class="turf-rating-display" id="rating-display-${id}">
+            <i class="fa-solid fa-star" style="color: #fbbf24;"></i> <span>Loading...</span>
+          </div>
         `;
         article.onclick = () => openModal(id);
         grid.appendChild(article);
+        fetchAverageRating(id);
       });
+    }
+
+    async function fetchAverageRating(turfId) {
+      try {
+        const res = await fetch(`/api/reviews?turfId=${turfId}`);
+        if (res.ok) {
+          const reviews = await res.json();
+          const display = document.getElementById(`rating-display-${turfId}`);
+          if (reviews.length > 0) {
+            const avg = reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length;
+            display.querySelector('span').textContent = `${avg.toFixed(1)} (${reviews.length})`;
+          } else {
+            display.querySelector('span').textContent = "No ratings";
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      }
     }
 
     function renderSlots() {
@@ -1229,13 +1276,98 @@
         tab === "booking" ? "flex" : "none";
       document.getElementById("openingsSection").style.display =
         tab === "openings" ? "flex" : "none";
+      document.getElementById("reviewsSection").style.display =
+        tab === "reviews" ? "flex" : "none";
+
       document
         .getElementById("tabBooking")
         .classList.toggle("active", tab === "booking");
       document
         .getElementById("tabOpenings")
         .classList.toggle("active", tab === "openings");
+      document
+        .getElementById("tabReviews")
+        .classList.toggle("active", tab === "reviews");
+
       if (tab === "openings") renderOpenings();
+      if (tab === "reviews") renderReviews();
+    }
+
+    let selectedRating = 0;
+    function setRating(val) {
+      selectedRating = val;
+      const stars = document.querySelectorAll('#ratingInput i');
+      stars.forEach((s, i) => {
+        if (i < val) {
+          s.classList.replace('fa-regular', 'fa-solid');
+        } else {
+          s.classList.replace('fa-solid', 'fa-regular');
+        }
+      });
+    }
+
+    async function renderReviews() {
+      const list = document.getElementById("reviewsList");
+      list.innerHTML = "Loading reviews...";
+      try {
+        const res = await fetch(`/api/reviews?turfId=${currentTurfId}`);
+        if (res.ok) {
+          const reviews = await res.json();
+          list.innerHTML = "";
+          if (reviews.length === 0) {
+            list.innerHTML = "<p style='color:#9ca3af; font-size:12px;'>No reviews yet.</p>";
+            return;
+          }
+          reviews.forEach(r => {
+            const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+            list.innerHTML += `
+              <div style="background:var(--input-bg); padding:8px; border-radius:8px; border:1px solid var(--border);">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <b style="font-size:12px; color:var(--text-primary);">${r.name}</b>
+                  <span style="color:#fbbf24; font-size:12px;">${stars}</span>
+                </div>
+                <p style="font-size:11px; color:var(--text-secondary); margin-top:4px;">${r.comment}</p>
+              </div>
+            `;
+          });
+        }
+      } catch (e) {
+        list.innerHTML = "Error loading reviews.";
+      }
+    }
+
+    async function submitReview() {
+      const comment = document.getElementById("reviewComment").value;
+      const user = JSON.parse(localStorage.getItem("currentUser")) || { name: "Anonymous" };
+
+      if (selectedRating === 0) {
+        alert("Please select a rating!");
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/reviews', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            turf_id: currentTurfId,
+            name: user.name,
+            rating: selectedRating,
+            comment: comment
+          })
+        });
+
+        if (res.ok) {
+          document.getElementById("reviewComment").value = "";
+          setRating(0);
+          renderReviews();
+          renderTurfGrid(); // Refresh avg rating on card
+        } else {
+          alert("Failed to submit review");
+        }
+      } catch (e) {
+        console.error(e);
+      }
     }
 
     function togglePanorama() {

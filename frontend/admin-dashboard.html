@@ -61,26 +61,6 @@
     .legend span { display: flex; align-items: center; gap: 8px; } 
     .dot { width: 14px; height: 14px; border-radius: 4px; }
 
-    .theme-btn {
-      background: var(--glass-bg);
-      border: 1px solid var(--border);
-      color: var(--text-primary);
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s ease;
-    }
-
-    .theme-btn:hover {
-      background: var(--accent-soft);
-      border-color: var(--accent);
-      transform: scale(1.1);
-    }
-
     h2 { color: var(--text-primary); margin: 0; }
     label { color: var(--text-primary); font-weight: 500; }
   </style>
@@ -90,8 +70,40 @@
   <header>
     <h2><i class="fa-solid fa-shield-halved" style="color: var(--accent);"></i> TurfArena Admin</h2>
     <div class="header-actions">
-      <button id="themeToggle" class="theme-btn" title="Toggle Theme">
-        <i class="fa-solid fa-moon"></i>
+      <button
+        id="themeToggle"
+        class="theme-toggle"
+        type="button"
+        title="Toggle theme"
+        aria-label="Toggle theme"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          width="1em"
+          height="1em"
+          fill="currentColor"
+          stroke-linecap="round"
+          class="theme-toggle__classic"
+          viewBox="0 0 32 32"
+        >
+          <clipPath id="theme-toggle__classic__cutout">
+            <path d="M0-5h30a1 1 0 0 0 9 13v24H0Z" />
+          </clipPath>
+          <g clip-path="url(#theme-toggle__classic__cutout)">
+            <circle cx="16" cy="16" r="9.34" />
+            <g stroke="currentColor" stroke-width="1.5">
+              <path d="M16 5.5v-4" />
+              <path d="M16 30.5v-4" />
+              <path d="M1.5 16h4" />
+              <path d="M26.5 16h4" />
+              <path d="m23.4 8.6 2.8-2.8" />
+              <path d="m5.7 26.3 2.9-2.9" />
+              <path d="m5.8 5.8 2.8 2.8" />
+              <path d="m23.4 23.4 2.9 2.9" />
+            </g>
+          </g>
+        </svg>
       </button>
       <button class="btn btn-danger" onclick="window.location.href='index.html'"><i class="fa-solid fa-power-off"></i> Logout</button>
     </div>
@@ -106,7 +118,28 @@
       <label>Select Date: </label>
       <input type="date" id="adminDate" onchange="loadData()">     
     </div>
+    <button class="btn" style="margin-left: 10px;" onclick="openAddTurfModal()"><i class="fa-solid fa-plus"></i> Add Turf</button>
+    <button class="btn btn-danger" style="margin-left: 10px;" onclick="deleteTurf()"><i class="fa-solid fa-trash"></i> Delete Selected</button>
     <span id="statusMessage" style="font-size: 14px; margin-left: auto; font-weight: 600;"></span>
+  </div>
+
+  <!-- Add Turf Modal -->
+  <div id="addTurfModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(5px); z-index:100; align-items:center; justify-content:center;">
+    <div style="background:var(--surface); padding:30px; border-radius:15px; width:400px; border:1px solid var(--border);">
+      <h3 style="margin-top:0; color:var(--text-primary);">Add New Turf</h3>
+      <div style="display:flex; flex-direction:column; gap:12px; margin-top:20px;">
+        <input type="text" id="newTurfName" placeholder="Turf Name">
+        <input type="text" id="newTurfLocation" placeholder="Location (e.g. Velachery)">
+        <input type="text" id="newTurfSports" placeholder="Sports (e.g. Football, Cricket)">
+        <input type="number" id="newTurfPrice" placeholder="Base Price per Hour">
+        <input type="text" id="newTurfImage" placeholder="Image Filename (e.g. aerial-view-grass-field-hockey.jpg)">
+        <input type="text" id="newTurfPanorama" placeholder="Panorama Filename (e.g. turf1-360.jpg)">
+        <div style="display:flex; gap:10px; margin-top:10px;">
+          <button class="btn btn-danger" style="flex:1;" onclick="closeAddTurfModal()">Cancel</button>
+          <button class="btn" style="flex:1;" onclick="saveNewTurf()">Save Turf</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="legend">
@@ -122,14 +155,12 @@
     const themeToggle = document.getElementById('themeToggle');
     const savedTheme = localStorage.getItem('theme') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
-    themeToggle.innerHTML = savedTheme === 'light' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
 
     themeToggle.addEventListener('click', () => {
       const currentTheme = document.documentElement.getAttribute('data-theme');
       const newTheme = currentTheme === 'light' ? 'dark' : 'light';
       document.documentElement.setAttribute('data-theme', newTheme);
       localStorage.setItem('theme', newTheme);
-      themeToggle.innerHTML = newTheme === 'light' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
     });
 
     let turfs = {};
@@ -148,6 +179,7 @@
         turfs = await res.json();
 
         const select = document.getElementById('turfSelect');      
+        select.innerHTML = ''; // Clear existing
         Object.values(turfs).forEach(t => {
           select.innerHTML += `<option value="${t.id}">${t.name}</option>`;
         });
@@ -162,10 +194,80 @@
           3: { id: 3, name: "SkyLine Sports Hub" }
         };
         const select = document.getElementById('turfSelect');      
+        select.innerHTML = '';
         Object.values(turfs).forEach(t => {
           select.innerHTML += `<option value="${t.id}">${t.name}</option>`;
         });
         loadData();
+      }
+    }
+
+    function openAddTurfModal() {
+      document.getElementById('addTurfModal').style.display = 'flex';
+    }
+
+    function closeAddTurfModal() {
+      document.getElementById('addTurfModal').style.display = 'none';
+    }
+
+    async function saveNewTurf() {
+      const name = document.getElementById('newTurfName').value;
+      const location = document.getElementById('newTurfLocation').value;
+      const sports = document.getElementById('newTurfSports').value;
+      const price = document.getElementById('newTurfPrice').value;
+      const image = document.getElementById('newTurfImage').value;
+      const panorama = document.getElementById('newTurfPanorama').value;
+
+      if (!name || !location || !sports || !price) {
+        alert("Please fill all required fields");
+        return;
+      }
+
+      const meta = `${location} • ${sports}`;
+
+      try {
+        const res = await fetch('/api/turfs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name, meta, basePrice: parseInt(price), panoramaUrl: panorama, imageUrl: image
+          })
+        });
+
+        if (res.ok) {
+          alert("Turf added successfully!");
+          closeAddTurfModal();
+          initAdmin(); // Refresh list
+        } else {
+          alert("Failed to add turf");
+        }
+      } catch (err) {
+        console.error("Error adding turf:", err);
+      }
+    }
+
+    async function deleteTurf() {
+      const turfId = document.getElementById('turfSelect').value;
+      if (!turfId) return;
+
+      const turfName = turfs[turfId].name;
+      if (!confirm(`Are you sure you want to delete "${turfName}"? All related bookings will be lost.`)) {
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/turfs/${turfId}`, {
+          method: 'DELETE'
+        });
+
+        if (res.ok) {
+          alert("Turf deleted successfully!");
+          initAdmin(); // Refresh list
+        } else {
+          alert("Failed to delete turf");
+        }
+      } catch (err) {
+        console.error("Error deleting turf:", err);
       }
     }
 

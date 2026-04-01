@@ -35,7 +35,8 @@ async function initDB() {
       name TEXT NOT NULL,
       meta TEXT NOT NULL,
       basePrice INTEGER NOT NULL,
-      panoramaUrl TEXT
+      panoramaUrl TEXT,
+      imageUrl TEXT
     );
     CREATE TABLE IF NOT EXISTS Bookings (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -64,6 +65,7 @@ async function initDB() {
     );
     CREATE TABLE IF NOT EXISTS Reviews (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      turf_id INTEGER,
       name TEXT NOT NULL,
       rating INTEGER,
       comment TEXT,
@@ -76,6 +78,14 @@ async function initDB() {
     );
   `);
 
+  // Handle schema updates for existing databases
+  try {
+    await db.exec('ALTER TABLE Turfs ADD COLUMN imageUrl TEXT');
+  } catch (e) {}
+  try {
+    await db.exec('ALTER TABLE Reviews ADD COLUMN turf_id INTEGER');
+  } catch (e) {}
+
   // Initialize stats row if missing
   await db.run('INSERT OR IGNORE INTO PlatformStats (id, manual_user_count, manual_booking_count) VALUES (1, 150, 1200)');
 
@@ -83,10 +93,10 @@ async function initDB() {
   const count = await db.get('SELECT COUNT(*) as count FROM Turfs');
   if (count.count === 0) {
     await db.exec(`
-      INSERT INTO Turfs (id, name, meta, basePrice, panoramaUrl) VALUES 
-      (1, 'GreenLine Arena', 'Velachery • Football, Cricket', 1200, 'turf1-360.jpg'),
-      (2, 'Boundary Line Turf', 'Tambaram • Cricket box', 800, 'turf2-360.jpg'),
-      (3, 'SkyLine Sports Hub', 'OMR • Multi-sport', 1000, 'turf3-360.jpg');
+      INSERT INTO Turfs (id, name, meta, basePrice, panoramaUrl, imageUrl) VALUES 
+      (1, 'GreenLine Arena', 'Velachery • Football, Cricket', 1200, 'turf1-360.jpg', 'aerial-view-grass-field-hockey.jpg'),
+      (2, 'Boundary Line Turf', 'Tambaram • Cricket box', 800, 'turf2-360.jpg', 'izuddin-helmi-adnan-K5ChxJaheKI-unsplash.jpg'),
+      (3, 'SkyLine Sports Hub', 'OMR • Multi-sport', 1000, 'turf3-360.jpg', 'thomas-park-fDmpxdV69eA-unsplash.jpg');
     `);
     console.log("Seeded database with initial turf data.");
   }
@@ -156,7 +166,7 @@ app.post('/api/auth/login', async (req, res) => {
 
 app.get('/api/turfs', async (req, res) => {
   try {
-    const rows = await db.all('SELECT id, name, meta, basePrice, panoramaUrl FROM Turfs');
+    const rows = await db.all('SELECT id, name, meta, basePrice, panoramaUrl, imageUrl FROM Turfs');
     const turfData = {};
     rows.forEach(turf => {
       turfData[turf.id] = {
@@ -164,7 +174,8 @@ app.get('/api/turfs', async (req, res) => {
         name: turf.name,
         meta: turf.meta,
         basePrice: turf.basePrice,
-        panoramaUrl: turf.panoramaUrl
+        panoramaUrl: turf.panoramaUrl,
+        imageUrl: turf.imageUrl
       };
     });
     res.json(turfData);
@@ -173,14 +184,28 @@ app.get('/api/turfs', async (req, res) => {
   }
 });
 
+// Add New Turf
+app.post('/api/turfs', async (req, res) => {
+  try {
+    const { name, meta, basePrice, panoramaUrl, imageUrl } = req.body;
+    const result = await db.run(
+      'INSERT INTO Turfs (name, meta, basePrice, panoramaUrl, imageUrl) VALUES (?, ?, ?, ?, ?)',
+      [name, meta, basePrice, panoramaUrl, imageUrl]
+    );
+    res.json({ message: 'Turf added successfully', id: result.lastID });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Update Turf Details
 app.put('/api/turfs/:id', async (req, res) => {
   try {
-    const { name, meta, basePrice, panoramaUrl } = req.body;
+    const { name, meta, basePrice, panoramaUrl, imageUrl } = req.body;
     const { id } = req.params;
     await db.run(
-      'UPDATE Turfs SET name = ?, meta = ?, basePrice = ?, panoramaUrl = ? WHERE id = ?',
-      [name, meta, basePrice, panoramaUrl, id]
+      'UPDATE Turfs SET name = ?, meta = ?, basePrice = ?, panoramaUrl = ?, imageUrl = ? WHERE id = ?',
+      [name, meta, basePrice, panoramaUrl, imageUrl, id]
     );
     res.json({ message: 'Turf updated successfully' });
   } catch (err) {
@@ -396,7 +421,13 @@ app.post('/api/openings', async (req, res) => {
 
 app.get('/api/reviews', async (req, res) => {
   try {
-    const rows = await db.all('SELECT * FROM Reviews ORDER BY created_at DESC');
+    const { turfId } = req.query;
+    let rows;
+    if (turfId) {
+      rows = await db.all('SELECT * FROM Reviews WHERE turf_id = ? ORDER BY created_at DESC', [turfId]);
+    } else {
+      rows = await db.all('SELECT * FROM Reviews ORDER BY created_at DESC');
+    }
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -405,8 +436,8 @@ app.get('/api/reviews', async (req, res) => {
 
 app.post('/api/reviews', async (req, res) => {
   try {
-    const { name, rating, comment } = req.body;
-    await db.run('INSERT INTO Reviews (name, rating, comment) VALUES (?, ?, ?)', [name, rating, comment]);
+    const { turf_id, name, rating, comment } = req.body;
+    await db.run('INSERT INTO Reviews (turf_id, name, rating, comment) VALUES (?, ?, ?, ?)', [turf_id, name, rating, comment]);
     res.json({ message: 'Review added successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
